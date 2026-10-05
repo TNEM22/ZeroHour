@@ -1,0 +1,145 @@
+/* ===========================================================================
+   Liquid glass
+   ---------------------------------------------------------------------------
+   A real material rather than a flat translucent panel. Four layers do the work:
+
+     1. backdrop-filter   refracts and saturates whatever sits behind it
+     2. ::before          a specular rim, bright where light lands, fading round
+     3. ::after           light pooling inside the top edge - the lens
+     4. box-shadow        an inner top highlight, an inner bottom shade, and a
+                          cast shadow so the panel floats rather than sits flat
+
+   Pseudo-elements are the reason this goes on containers, not on <input>, which
+   cannot carry them; fields get the reduced treatment at the bottom.
+   ========================================================================== */
+
+:root {
+  --glass-radius: 22px;
+  --glass-blur: 26px;
+  --glass-sat: 185%;
+  --glass-lift: 1.12;
+
+
+
+  --glass-cast: 0 20px 46px -16px rgba(0, 0, 0, 0.8), 0 5px 14px rgba(0, 0, 0, 0.42);
+}
+
+.glass {
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  border-radius: var(--glass-radius);
+  background: var(--glass-fill);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-lift));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-lift));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.11),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45),
+    var(--glass-cast);
+  transition: background 0.28s var(--ease), box-shadow 0.28s var(--ease),
+              backdrop-filter 0.28s var(--ease), transform 0.2s var(--ease);
+}
+
+/* The rim is a gradient-filled border, cut to a 1px ring by masking the middle
+   out. A plain border cannot vary its colour around the shape. */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--glass-rim);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Light gathering under the top edge, and a faint accent bounce off the floor. */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(135% 92% at 50% -30%, rgba(255, 255, 255, 0.17), transparent 56%),
+    radial-gradient(95% 70% at 50% 130%, rgb(var(--core-rgb) / 0.12), transparent 62%);
+  pointer-events: none;
+}
+
+/* Anything inside has to clear the two pseudo-layers. */
+.glass > * { position: relative; z-index: 2; }
+
+.glass--deep { background: var(--glass-fill-deep); }
+
+/* --------------------------------------------------------- interactivity -- */
+
+/* Real glass responds to touch: it brightens, the rim catches more light, and
+   it gives very slightly under the press. */
+.glass--tap { cursor: pointer; }
+
+.glass--tap:hover {
+  background: rgb(var(--glass-deep-rgb) / 0.44);
+  backdrop-filter: blur(var(--glass-blur)) saturate(205%) brightness(1.16);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(205%) brightness(1.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45),
+    0 24px 54px -16px rgba(0, 0, 0, 0.82),
+    0 0 26px -6px rgb(var(--core-rgb) / 0.3);
+}
+
+.glass--tap:active { transform: scale(0.978); }
+
+.glass--tap:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 3px rgb(var(--core-rgb) / 0.45),
+    var(--glass-cast);
+}
+
+/* ---------------------------------------------------------------- fields -- */
+
+/* <input> cannot carry pseudo-elements, so the rim is approximated with a
+   border plus inset highlights. Same material, fewer layers. */
+.glass-field {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.26);
+  border-radius: 12px;
+  background: rgb(var(--abyss-rgb) / 0.5);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -8px 18px -12px rgba(0, 0, 0, 0.9);
+  transition: border-color 0.22s var(--ease), box-shadow 0.22s var(--ease),
+              background 0.22s var(--ease);
+}
+
+.glass-field:focus {
+  outline: none;
+  border-color: rgb(var(--core-rgb) / 0.55);
+  background: rgb(var(--glass-deep-rgb) / 0.62);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 0 3px rgb(var(--core-rgb) / 0.14);
+}
+
+/* ------------------------------------------------------------- fallbacks -- */
+
+/* Without backdrop-filter there is nothing to refract, so lean on opacity
+   instead - otherwise the panels read as barely-there smudges. */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass { background: rgb(var(--abyss-rgb) / 0.86); }
+  .glass--deep { background: rgb(var(--void-rgb) / 0.92); }
+  .glass-field { background: rgb(var(--void-rgb) / 0.9); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass, .glass-field { transition: none; }
+  .glass--tap:active { transform: none; }
+}

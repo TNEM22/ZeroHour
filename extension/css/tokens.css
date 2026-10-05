@@ -1,0 +1,56 @@
+/* Zero Hour — design tokens that do not change between palettes.
+   Every colour lives in the generated palettes.css, which must be linked first. */
+
+:root {
+  color-scheme: dark;
+
+  /* Bahnschrift ships with Windows and gives the wide geometric cut the
+     countdown needs; the rest are fallbacks on other platforms. */
+  --face: "Bahnschrift", "DIN Alternate", "Oswald", "Archivo Narrow",
+          "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+
+  /* Grade applied to the backdrop image. A generated photo usually arrives
+     brighter than the countdown can sit on; drop --plate-brightness until the
+     white digits read cleanly. tools/adopt-images.mjs measures this for you. */
+  --plate-brightness: 0.86;
+  --plate-saturate: 1.08;
+  --plate-contrast: 1.06;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --radius: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--bone);
+  font-family: var(--face);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Shared: small tracked-out label text. */
+.label {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+:focus-visible {
+  outline: 2px solid var(--core);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection { background: rgb(var(--core-rgb) / 0.3); color: var(--shaft); }
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--abyss); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--glass), var(--glass-deep));
+  border: 3px solid var(--abyss);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--core); }

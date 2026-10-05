@@ -1,0 +1,22 @@
+# Your own backdrop images stay local. Publishing the repo publishes whatever is
+# committed, so anything you did not draw yourself is kept out of it.
+ai_generated_images/*
+!ai_generated_images/PROMPTS.md
+
+# Backups written by tools/adopt-images.mjs
+tools/.previous/
+
+# Build output
+dist/
+release/
+*.crx
+*.pem
+*.zip
+
+# Chrome writes this into a theme folder when it is loaded unpacked
+Cached Theme.pak
+
+# Per-machine editor and tool settings
+.claude/settings.local.json
+.vscode/
+node_modules/

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Zero Hour — Settings</title>
+  <link rel="icon" href="assets/icon-32.png">
+  <link rel="stylesheet" href="css/palettes.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/options.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="head">
+      <img src="assets/icon-128.png" alt="" width="52" height="52">
+      <div>
+        <h1>Zero Hour</h1>
+        <p class="head__sub label">New tab countdown · settings</p>
+      </div>
+      <output class="head__preview glass" id="preview" aria-live="polite"></output>
+    </header>
+
+    <section class="card glass">
+      <h2>The event</h2>
+
+      <label class="field">
+        <span class="field__name">Date and time</span>
+        <input class="glass-field" type="datetime-local" id="target">
+        <span class="field__hint" id="targetHint"></span>
+      </label>
+
+      <label class="field">
+        <span class="field__name">Title</span>
+        <input class="glass-field" type="text" id="title" maxlength="40" placeholder="ZERO HOUR">
+        <span class="field__hint">Shown top-left, and as the tab title.</span>
+      </label>
+
+      <label class="field">
+        <span class="field__name">Tagline</span>
+        <input class="glass-field" type="text" id="tagline" maxlength="60" placeholder="ALL TIMELINES CONVERGE">
+      </label>
+
+      <label class="field">
+        <span class="field__name">Message when it arrives</span>
+        <input class="glass-field" type="text" id="arrivedText" maxlength="60" placeholder="THE HOUR HAS COME">
+      </label>
+    </section>
+
+    <section class="card glass">
+      <h2>Palette</h2>
+      <div class="palettes" id="palettes" role="radiogroup" aria-label="Palette"></div>
+      <p class="card__note">
+        Recolours the new tab, popup and this page. The browser frame around them
+        is a separate thing — see below.
+      </p>
+    </section>
+
+    <section class="card glass">
+      <h2>The new tab</h2>
+      <div class="switches">
+        <label class="switch"><input type="checkbox" id="showSearch"><span></span>Search bar</label>
+        <label class="switch"><input type="checkbox" id="showTiles"><span></span>Shortcut tiles</label>
+        <label class="switch"><input type="checkbox" id="letterbox"><span></span>Cinematic bars</label>
+        <label class="switch"><input type="checkbox" id="motion"><span></span>Motion and dust</label>
+      </div>
+    </section>
+
+    <section class="card glass">
+      <h2>Clock</h2>
+      <div class="switches">
+        <label class="switch"><input type="checkbox" id="showClock"><span></span>Show the clock</label>
+        <label class="switch"><input type="checkbox" id="clockSeconds"><span></span>Show seconds</label>
+        <label class="switch"><input type="checkbox" id="clock24"><span></span>24-hour time</label>
+      </div>
+      <p class="card__note">
+        24-hour time starts off matching your system setting; switching it here
+        pins it either way.
+      </p>
+    </section>
+
+    <section class="card glass">
+      <h2>Shortcuts</h2>
+      <p class="card__note">
+        Leave this empty to use your most-visited sites instead. The new tab will ask
+        for permission the first time.
+      </p>
+      <div class="rows" id="rows"></div>
+      <button class="btn btn--ghost glass glass--tap" id="addRow" type="button">Add a shortcut</button>
+    </section>
+
+    <section class="card glass">
+      <h2>The browser frame</h2>
+      <p class="card__note">
+        An extension cannot recolour the window frame, tabs or toolbar. Only an
+        installed theme can, its colours are fixed in that package, and no API
+        can change or install one for you. The frame is near-black in every
+        palette, so one graphite theme sits correctly under all of them.
+      </p>
+      <a class="btn btn--ghost glass glass--tap" id="themeLink" target="_blank"
+         rel="noopener" hidden>Get the matching theme</a>
+      <p class="card__note card__note--warn" id="themeSoon">
+        The theme listings are not live yet. Until they are, the frame keeps
+        whatever theme you already have.
+      </p>
+    </section>
+
+    <section class="card glass">
+      <h2>Beyond the new tab</h2>
+      <label class="switch switch--block">
+        <input type="checkbox" id="accentWeb"><span></span>
+        Carry the accent onto ordinary web pages
+      </label>
+      <p class="card__note">
+        Restyles scrollbars, text selection and form accents on the sites you visit.
+        Turning this on asks for access to websites; turning it off revokes it again.
+      </p>
+      <p class="card__note card__note--warn" id="accentNote" hidden></p>
+    </section>
+
+    <footer class="foot">
+      <span class="foot__status" id="status" role="status"></span>
+      <button class="btn btn--ghost glass glass--tap" id="reset" type="button">Reset everything</button>
+    </footer>
+
+    <p class="colophon">
+      Settings sync to every device signed in to the same browser profile, through
+      the browser's own sync. Nothing is sent anywhere else.
+    </p>
+
+    <p class="colophon">
+      Every image here is generated procedurally for this project. No studio
+      logos, marks or film imagery are included.
+    </p>
+
+    <p class="credit">Made by Mohan</p>
+  </div>
+
+  <script type="module" src="js/options.js"></script>
+</body>
+</html>

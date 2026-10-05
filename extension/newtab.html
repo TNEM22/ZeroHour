@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>New Tab</title>
+  <link rel="icon" href="assets/icon-32.png">
+  <link rel="stylesheet" href="css/palettes.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/newtab.css">
+</head>
+<body class="is-booting">
+  <div class="stage">
+    <div class="scene" aria-hidden="true">
+      <div class="scene__plate"></div>
+      <div class="scene__shaft"></div>
+      <canvas class="scene__motes" id="motes"></canvas>
+      <div class="scene__grain"></div>
+      <div class="scene__vignette"></div>
+    </div>
+
+    <div class="bar bar--top" aria-hidden="true"></div>
+    <div class="bar bar--bottom" aria-hidden="true"></div>
+
+    <div class="ticks" aria-hidden="true">
+      <i class="ticks__mark ticks__mark--tl"></i><i class="ticks__mark ticks__mark--tr"></i>
+      <i class="ticks__mark ticks__mark--bl"></i><i class="ticks__mark ticks__mark--br"></i>
+    </div>
+
+    <header class="hud">
+      <div class="hud__side">
+        <img class="hud__sigil" src="assets/icon-32.png" alt="" width="20" height="20">
+        <span class="hud__title" id="title">ZERO HOUR</span>
+      </div>
+      <div class="hud__side hud__side--end" id="clockWrap">
+        <span class="hud__clock glass" id="clock"></span>
+        <span class="hud__date label" id="date"></span>
+      </div>
+    </header>
+
+    <main class="core">
+      <p class="core__eyebrow label" id="eyebrow">Countdown to</p>
+
+      <div class="counter" id="counter" role="timer" aria-live="off">
+        <!-- units are built by js/newtab.js -->
+      </div>
+
+      <p class="counter__sr" id="srCountdown" aria-live="polite"></p>
+      <p class="core__tagline" id="tagline">ALL TIMELINES CONVERGE</p>
+
+      <div class="timeline" id="timeline">
+        <span class="timeline__cap label">One year out</span>
+        <div class="timeline__track">
+          <div class="timeline__fill" id="progress"></div>
+        </div>
+        <span class="timeline__cap label">Zero hour</span>
+      </div>
+    </main>
+
+    <footer class="dock">
+      <form class="search glass" id="search" role="search">
+        <svg class="search__glyph" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>
+        </svg>
+        <input class="search__input" id="q" type="text" autocomplete="off" spellcheck="false"
+               placeholder="Search the remaining time" aria-label="Search the web">
+        <button class="search__go" type="submit" aria-label="Search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+
+      <nav class="tiles" id="tiles" aria-label="Shortcuts"></nav>
+
+      <button class="tiles__enable glass glass--tap" id="enableTiles" hidden>
+        Show my most-visited sites
+      </button>
+    </footer>
+
+    <a class="settings glass glass--tap" id="settings" href="options.html" title="Theme settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.2"/>
+        <path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2L5.5 5.5"/>
+      </svg>
+    </a>
+  </div>
+
+  <script type="module" src="js/newtab.js"></script>
+</body>
+</html>

@@ -1,0 +1,510 @@
+/* ---------------------------------------------------------------- stage -- */
+
+html, body { height: 100%; }
+body { overflow-x: hidden; overflow-y: auto; }
+
+/* The countdown and the dock are one block, centred together. Spreading them
+   across a full-height grid is what left the big empty band between them. */
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3vh, 38px);
+  min-height: 100vh;
+  padding: clamp(58px, 8vh, 86px) clamp(16px, 4vw, 56px) clamp(24px, 4vh, 46px);
+}
+
+/* Nothing shows until settings have been applied, so the page never flashes
+   the defaults and then snap to the user's values. */
+body.is-booting .hud,
+body.is-booting .core,
+body.is-booting .dock { opacity: 0; }
+
+.hud, .core, .dock { transition: opacity 0.5s var(--ease); }
+
+/* ---------------------------------------------------------------- scene -- */
+
+.scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+.scene__plate {
+  position: absolute;
+  inset: -4%;
+  background: var(--plate-image) center / cover no-repeat;
+  filter: brightness(var(--plate-brightness)) saturate(var(--plate-saturate))
+          contrast(var(--plate-contrast));
+  animation: drift 64s var(--ease) infinite alternate;
+}
+
+/* A second pass of light over the plate, breathing slowly. */
+.scene__shaft {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(34vw 30vw at 65% 22%, rgb(var(--glow-rgb) / 0.16), transparent 60%),
+    radial-gradient(76vw 58vw at 62% 16%, rgb(var(--core-rgb) / 0.055), transparent 68%);
+  mix-blend-mode: screen;
+  opacity: 0.6; /* the animation's midpoint, so switching motion off looks the same */
+  animation: breathe 11s ease-in-out infinite;
+}
+
+.scene__motes { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.scene__grain {
+  position: absolute;
+  inset: 0;
+  background: url("../assets/grain.png") repeat;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  animation: shift 1.1s steps(3) infinite;
+}
+
+.scene__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(54vw 42vh at 50% 44%, rgb(var(--void-rgb) / 0.88), transparent 74%),
+    radial-gradient(110% 88% at 50% 46%, transparent 22%, rgb(var(--void-rgb) / 0.94) 92%),
+    linear-gradient(to bottom, rgb(var(--void-rgb) / 0.72), transparent 22%, transparent 56%, rgb(var(--void-rgb) / 0.92));
+}
+
+@keyframes drift {
+  from { transform: scale(1.04) translate3d(-0.6%, -0.5%, 0); }
+  to   { transform: scale(1.09) translate3d(0.8%, 0.7%, 0); }
+}
+@keyframes breathe { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.85; } }
+@keyframes shift {
+  0%   { transform: translate3d(0, 0, 0); }
+  33%  { transform: translate3d(-3%, 2%, 0); }
+  66%  { transform: translate3d(2%, -3%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* ------------------------------------------------------------ letterbox -- */
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: #000;
+  z-index: 3;
+  pointer-events: none;
+  transition: height 0.6s var(--ease);
+}
+.bar--top { top: 0; }
+.bar--bottom { bottom: 0; }
+body.letterbox .bar { height: clamp(18px, 4.2vh, 48px); }
+
+/* ------------------------------------------------------------------ hud -- */
+
+/* Floated out of the flow so it cannot stretch the block it sits above. */
+.hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: clamp(14px, 2.4vh, 26px) clamp(16px, 4vw, 56px) 0;
+}
+
+.hud__side { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.hud__side--end { flex-direction: column; align-items: flex-end; gap: 2px; }
+
+.hud__sigil { opacity: 0.85; filter: drop-shadow(0 0 10px rgb(var(--core-rgb) / 0.45)); }
+
+.hud__title {
+  font-size: 13px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--glow);
+  text-shadow: 0 0 22px rgb(var(--core-rgb) / 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud__clock {
+  --glass-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 15px;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fixed cell widths stop the row shuffling sideways as digits change. */
+.hud__digit, .hud__fixed { display: inline-block; }
+.hud__digit { min-width: 0.64em; text-align: center; }
+.hud__fixed { opacity: 0.45; white-space: pre; }
+
+/* A changed digit arrives through the glass: blurred and high, then settling. */
+.hud__digit.is-rolling { animation: digitRoll 0.5s var(--ease); }
+@keyframes digitRoll {
+  0%   { opacity: 0; transform: translateY(-0.36em) scale(0.88); filter: blur(5px); }
+  55%  { opacity: 1; }
+  100% { opacity: 1; transform: none; filter: blur(0); }
+}
+
+.hud__date { font-size: 10px; letter-spacing: 0.26em; margin-top: 7px; }
+.hud__side--end[hidden] { display: none; }
+
+/* -------------------------------------------------------------- counter -- */
+
+.core {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 2.2vh, 26px);
+  text-align: center;
+}
+
+.core__eyebrow { font-size: clamp(9px, 0.9vw, 11px); letter-spacing: 0.44em; opacity: 0.85;
+  text-shadow: 0 0 14px rgb(var(--void-rgb) / 0.9); }
+
+.counter {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(6px, 1.4vw, 20px);
+}
+
+.unit { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.4vh, 16px); }
+
+.unit__value {
+  font-size: clamp(34px, 7.4vw, 108px);
+  font-weight: 400;
+  font-variation-settings: "wght" 350, "wdth" 92;
+  line-height: 0.9;
+  letter-spacing: 0.1em;
+  text-indent: 0.1em; /* balance the trailing letter-spacing so digits sit centred */
+  font-variant-numeric: tabular-nums;
+  color: #f4f8f5;
+  text-shadow: 0 0 46px rgb(var(--glow-rgb) / 0.3), 0 0 14px rgb(var(--void-rgb) / 0.9),
+               0 2px 44px rgba(0, 0, 0, 0.9);
+}
+
+.unit__label {
+  font-size: clamp(8px, 0.82vw, 12px);
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  text-transform: uppercase;
+  color: rgb(var(--bone-rgb) / 0.6);
+  text-shadow: 0 0 12px rgb(var(--void-rgb) / 0.9);
+}
+
+/* Matching the digits' size and line-height is what keeps the colons sitting on
+   the same optical line; sizing them independently made them drift and read as
+   loose dots. */
+.counter__sep {
+  font-size: clamp(34px, 7.4vw, 108px);
+  line-height: 0.9;
+  font-weight: 300;
+  color: var(--glow);
+  opacity: 0.22;
+  user-select: none;
+  transform: translateY(-0.04em);
+}
+
+/* The seconds column gets a faint pulse on each tick. */
+.unit--tick .unit__value { animation: tick 0.7s var(--ease); }
+@keyframes tick {
+  0%   { text-shadow: 0 0 66px rgb(var(--glow-rgb) / 0.7), 0 0 14px rgb(var(--void-rgb) / 0.9),
+                      0 2px 44px rgba(0, 0, 0, 0.9); }
+  100% { text-shadow: 0 0 46px rgb(var(--glow-rgb) / 0.3), 0 0 14px rgb(var(--void-rgb) / 0.9),
+                      0 2px 44px rgba(0, 0, 0, 0.9); }
+}
+
+.counter__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+.core__tagline {
+  margin: 0;
+  font-size: clamp(9px, 1vw, 13px);
+  letter-spacing: 0.46em;
+  text-indent: 0.46em;
+  text-transform: uppercase;
+  color: rgb(var(--bone-rgb) / 0.62);
+  text-shadow: 0 0 16px rgb(var(--void-rgb) / 0.9);
+}
+
+body.is-arrived .unit__value { color: var(--glow); }
+body.is-arrived .core__tagline { color: var(--glow); opacity: 1; }
+
+/* ----------------------------------------------------------------- dock -- */
+
+.dock {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.4vh, 24px);
+}
+
+/* The material comes from .glass; this only sets the shape and the box. */
+.search {
+  --glass-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(620px, 100%);
+  padding: 0 6px 0 18px;
+  height: 54px;
+}
+.search:focus-within {
+  background: rgb(var(--glass-deep-rgb) / 0.46);
+  backdrop-filter: blur(var(--glass-blur)) saturate(200%) brightness(1.14);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%) brightness(1.14);
+}
+/* Keyboard focus still gets a clear ring; this only tames the resting state. */
+.search__input:focus-visible { outline: none; }
+.search:has(.search__input:focus-visible) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 3px rgb(var(--core-rgb) / 0.4),
+    var(--glass-cast);
+}
+.search[hidden] { display: none; }
+
+.search__glyph, .search__go svg {
+  width: 18px; height: 18px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.search__glyph { color: var(--ash); }
+
+.search__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--bone);
+  font-family: var(--face);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+.search__input:focus { outline: none; }
+.search__input::placeholder { color: rgb(var(--ash-rgb) / 0.65); letter-spacing: 0.12em; font-size: 13px; }
+
+.search__go {
+  display: grid;
+  place-items: center;
+  width: 38px; height: 38px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--core-rgb) / 0.12);
+  color: var(--core);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.search__go:hover { background: rgb(var(--core-rgb) / 0.26); transform: translateX(2px); }
+
+/* ---------------------------------------------------------------- tiles -- */
+
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(6px, 1.4vw, 18px);
+  max-width: min(900px, 100%);
+}
+.tiles[hidden] { display: none; }
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  width: 92px;
+  padding: 12px 6px 10px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--ash);
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.tile:hover { background: var(--fill-hover); color: var(--bone); transform: translateY(-2px); }
+
+.tile__chip {
+  --glass-radius: 50%;
+  /* Small panels need a stronger rim or the edge light disappears at 48px. */
+  --glass-rim: linear-gradient(140deg, rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.16) 30%, rgba(255, 255, 255, 0.03) 52%,
+    rgb(var(--core-rgb) / 0.42) 100%);
+  background: rgb(var(--glass-deep-rgb) / 0.42);
+  display: grid;
+  place-items: center;
+  width: 48px; height: 48px;
+}
+/* The <a> is the hover target, so the chip is lit from its parent. */
+.tile:hover .tile__chip {
+  background: rgb(var(--glass-deep-rgb) / 0.46);
+  backdrop-filter: blur(var(--glass-blur)) saturate(205%) brightness(1.18);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(205%) brightness(1.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45),
+    0 22px 48px -16px rgba(0, 0, 0, 0.8),
+    0 0 26px -6px rgb(var(--core-rgb) / 0.36);
+}
+.tile__chip img { width: 22px; height: 22px; }
+.tile__chip span { font-size: 17px; color: var(--core); letter-spacing: 0.04em; }
+
+.tile__name {
+  max-width: 100%;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tiles__enable {
+  --glass-radius: 999px;
+  padding: 11px 24px;
+  color: var(--ash);
+  font-family: var(--face);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.tiles__enable:hover { color: var(--glow); }
+.tiles__enable[hidden] { display: none; }
+
+/* ------------------------------------------------------------- settings -- */
+
+.settings {
+  position: fixed;
+  right: clamp(14px, 2.6vw, 30px);
+  bottom: clamp(14px, 2.6vh, 30px);
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  --glass-radius: 50%;
+  width: 38px; height: 38px;
+  color: var(--ash);
+  opacity: 0.6;
+  transition: opacity 0.25s var(--ease), color 0.25s var(--ease), transform 0.4s var(--ease),
+              background 0.28s var(--ease), box-shadow 0.28s var(--ease);
+}
+.settings:hover { opacity: 1; color: var(--core); transform: rotate(60deg); }
+.settings svg {
+  width: 19px; height: 19px;
+  fill: none; stroke: currentColor; stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+/* -------------------------------------------------------- short windows -- */
+
+/* Chrome windows get short before they get narrow; drop the scene furniture
+   first, then the dock, so the countdown itself never gets squeezed out. */
+@media (max-height: 620px) {
+  .core__eyebrow { display: none; }
+  body.letterbox .bar { height: 0; }
+}
+@media (max-height: 500px) {
+  .tiles, .tiles__enable { display: none; }
+  .core__tagline { display: none; }
+}
+@media (max-width: 560px) {
+  .counter { gap: 2px; }
+  .counter__sep { display: none; }
+  .unit { width: 19%; }
+  .unit__label { letter-spacing: 0.14em; text-indent: 0.14em; }
+  .tile { width: 74px; }
+}
+
+/* ----------------------------------------------------------- stillness -- */
+
+body.no-motion .scene__plate,
+body.no-motion .scene__shaft,
+body.no-motion .scene__grain,
+body.no-motion .unit--tick .unit__value,
+body.no-motion .hud__digit.is-rolling { animation: none; }
+body.no-motion .scene__motes { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene__plate, .scene__shaft, .scene__grain, .hud__digit.is-rolling { animation: none; }
+  .scene__motes { display: none; }
+  .hud, .core, .dock, .bar, .tile, .search, .settings { transition: none; }
+}
+
+/* ------------------------------------------------------------- timeline -- */
+
+/* A countdown should show how far along it is, not just what is left. */
+.timeline {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.6vw, 20px);
+  width: min(720px, 82vw);
+  margin-top: clamp(2px, 1vh, 10px);
+}
+
+.timeline__cap {
+  flex: none;
+  font-size: clamp(7px, 0.66vw, 9px);
+  letter-spacing: 0.26em;
+  color: rgb(var(--ash-rgb) / 0.55);
+  white-space: nowrap;
+}
+
+.timeline__track {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg,
+    rgb(var(--ash-rgb) / 0.08), rgb(var(--ash-rgb) / 0.22), rgb(var(--ash-rgb) / 0.08));
+}
+
+.timeline__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: linear-gradient(90deg, rgb(var(--core-rgb) / 0.1), var(--core));
+  box-shadow: 0 0 14px rgb(var(--core-rgb) / 0.55);
+  transition: width 1.2s var(--ease);
+}
+
+/* The head of the fill: where the present moment sits on the run-up. */
+.timeline__fill::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: var(--glow);
+  box-shadow: 0 0 10px var(--core), 0 0 22px rgb(var(--core-rgb) / 0.8);
+}
+
+body.no-motion .timeline__fill { transition: none; }
+
+/* ---------------------------------------------------------------- ticks -- */
+
+/* Framing marks, the way a camera brackets the usable plate. */
+.ticks { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+.ticks__mark {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid rgb(var(--core-rgb) / 0.28);
+}
+.ticks__mark--tl { top: 26px; left: 24px; border-top-width: 1px; border-left-width: 1px; }
+.ticks__mark--tr { top: 26px; right: 24px; border-top-width: 1px; border-right-width: 1px; }
+.ticks__mark--bl { bottom: 26px; left: 24px; border-bottom-width: 1px; border-left-width: 1px; }
+.ticks__mark--br { bottom: 26px; right: 24px; border-bottom-width: 1px; border-right-width: 1px; }
+
+@media (max-width: 700px), (max-height: 560px) { .ticks { display: none; } }

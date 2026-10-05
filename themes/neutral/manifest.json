@@ -1,0 +1,126 @@
+{
+  "manifest_version": 3,
+  "name": "Zero Hour — Graphite",
+  "version": "1.0.0",
+  "description": "A dark graphite browser theme: deep glass surfaces, built for low light.",
+  "theme": {
+    "images": {
+      "theme_frame": "images/theme_frame.png",
+      "theme_frame_inactive": "images/theme_frame_inactive.png",
+      "theme_toolbar": "images/theme_toolbar.png",
+      "theme_tab_background": "images/theme_tab_background.png",
+      "theme_button_background": "images/theme_button_background.png",
+      "theme_ntp_background": "images/theme_ntp_background.png"
+    },
+    "colors": {
+      "frame": [
+        12,
+        12,
+        14
+      ],
+      "frame_inactive": [
+        6,
+        6,
+        7
+      ],
+      "frame_incognito": [
+        6,
+        6,
+        7
+      ],
+      "frame_incognito_inactive": [
+        8,
+        8,
+        9
+      ],
+      "toolbar": [
+        18,
+        18,
+        20
+      ],
+      "tab_text": [
+        232,
+        236,
+        238
+      ],
+      "tab_background_text": [
+        148,
+        154,
+        158
+      ],
+      "tab_background_text_inactive": [
+        104,
+        108,
+        111
+      ],
+      "bookmark_text": [
+        200,
+        203,
+        205
+      ],
+      "toolbar_button_icon": [
+        130,
+        136,
+        142
+      ],
+      "omnibox_background": [
+        24,
+        24,
+        27
+      ],
+      "omnibox_text": [
+        232,
+        236,
+        238
+      ],
+      "ntp_background": [
+        6,
+        6,
+        7
+      ],
+      "ntp_text": [
+        232,
+        236,
+        238
+      ],
+      "ntp_link": [
+        168,
+        176,
+        182
+      ],
+      "ntp_header": [
+        52,
+        55,
+        60
+      ],
+      "button_background": [
+        24,
+        24,
+        27,
+        140
+      ]
+    },
+    "tints": {
+      "buttons": [
+        -1,
+        -1,
+        -1
+      ],
+      "frame": [
+        -1,
+        -1,
+        -1
+      ],
+      "background_tab": [
+        -1,
+        -1,
+        -1
+      ]
+    },
+    "properties": {
+      "ntp_background_alignment": "center",
+      "ntp_background_repeat": "no-repeat",
+      "ntp_logo_alternate": 1
+    }
+  }
+}
